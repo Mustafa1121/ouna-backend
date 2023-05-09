@@ -1,5 +1,17 @@
 const mongoose = require("mongoose");
 
+const imageSchema = new mongoose.Schema({
+  url: {
+    type: String,
+  },
+});
+
+const videoSchema = new mongoose.Schema({
+  url: {
+    type: String,
+  },
+});
+
 const itemSchema = new mongoose.Schema(
   {
     name: {
@@ -21,10 +33,10 @@ const itemSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    category: { type: mongoose.Schema.ObjectId, ref: "category" },
-    owner: { type: mongoose.Schema.ObjectId, ref: "user" },
+    category: { type: mongoose.Schema.ObjectId, ref: "Category" },
+    owner: { type: mongoose.Schema.ObjectId, ref: "User" },
     images: {
-      type: [Object],
+      type: [imageSchema],
       default: [],
     },
     description: {
@@ -33,8 +45,8 @@ const itemSchema = new mongoose.Schema(
       default: "",
     },
     video: {
-      type: String,
-      default: "",
+      type: videoSchema,
+      default: {},
     },
     views: {
       type: Number,
