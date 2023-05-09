@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema(
   {
@@ -51,7 +52,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
 
 // Hash pass before saving
 userSchema.pre("save", async function (next) {
@@ -59,9 +59,6 @@ userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
       return next();
     }
-
-    await this.addToPasswordHistory(this.password);
-
     this.password = await bcrypt.hash(this.password, 12);
     this.passwordConfirm = undefined;
   } catch (error) {
@@ -89,3 +86,6 @@ userSchema.methods.generateResetPasswordToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
+
+
+module.exports = mongoose.model("User", userSchema);

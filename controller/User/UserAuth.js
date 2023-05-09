@@ -22,7 +22,11 @@ exports.login = async (req, res) => {
     }
     // if everything is oke Log the user in
     createSendToken(user, 200, res);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    })
+  }
 };
 
 // Register
@@ -46,7 +50,7 @@ exports.register = async (req, res) => {
 
     // Save user to database
     await user.save();
-    createSendToken(newUser, 201, res);
+    createSendToken(user, 201, res);
   } catch (error) {}
 };
 
