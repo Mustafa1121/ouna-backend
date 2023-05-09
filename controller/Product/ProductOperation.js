@@ -4,6 +4,14 @@ const cloudinary = require("cloudinary").v2;
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
 
+console.log(process.env.CLOUDINARY_CLOUD_NAME);
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
@@ -18,12 +26,14 @@ exports.addProduct = async (req, res) => {
       description: data.description,
       recycling: data.recycling,
       origin: data.origin,
-      unitPrice: getUnitPrice(data.unitPrice),
+      unitPrice: getUnitPrice(data.origin),
     });
     if (images) {
-      for (let j = 0; j < data.images.length; j++) {
+      for (let j = 0; j < images.length; j++) {
+        console.log(images[j]);
         const url = await cloudinary.uploader.upload(images[j], {
           folder: "products_folder",
+          resource_type: "image",
         });
         imagesArray.push({ url: url.secure_url });
         newProduct.images = imagesArray;
@@ -36,12 +46,13 @@ exports.addProduct = async (req, res) => {
       });
       newProduct.video = { url: video.secure_url };
     }
+    console.log(newProduct);
     await newProduct.save();
     return res
       .status(200)
       .json({ message: "Product added to be analyzed", data: newProduct });
   } catch (error) {
-    console.log(error);
+    return res.status(400).json({ message: error.message });
   }
 };
 exports.getSingleProduct = async (req, res) => {

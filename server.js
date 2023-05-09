@@ -19,3 +19,7 @@ const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {
     console.log(`server is running at http://localhost:${PORT}`)
 });
+
+
+// INSERT CATEGORIES
+// require('./models/Category/CategoryModel').insertMany(require('./config/categories').categories)
