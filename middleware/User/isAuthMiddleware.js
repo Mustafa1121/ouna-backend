@@ -6,17 +6,17 @@ const UserMiddleAware = (req, res, next) => {
   if (!token || !token.startsWith("Bearer")) {
     return res.status(400).json({ message: "Not authorized." });
   }
-  console.log(token);
   if (token.split(" ")[1]) {
     jwt.verify(
       token.split(" ")[1],
-      process.env.TOKEN_SECRET,
+      process.env.JWT_SECRET,
       async (err, decodedToken) => {
         if (err) {
+          console.log(err);
           req.user = null;
           return res.status(400).json({ message: "Token expired!" });
         } else {
-          let user = await User.findById(decodedToken.userId);
+          let user = await User.findById(decodedToken.id);
           if (user) {
             req.user = user;
             next();

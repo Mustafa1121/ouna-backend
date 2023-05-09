@@ -108,7 +108,7 @@ exports.verifyEmailToken = async (req, res) => {
     // Verify user's email
     user.isEmailVerified = true;
     user.verificationToken = undefined;
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     // Send success response
     res.json({ msg: "Email verified successfully" });

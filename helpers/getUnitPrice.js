@@ -1,24 +1,35 @@
 exports.getUnitPrice = (city) => {
-  let unitPrice;
+  let symbol;
 
   if (city === "Tunisia") {
-    unitPrice = "TND";
+    symbol = "TND";
   } else if (city === "Morocco") {
-    unitPrice = "MAD";
+    symbol = "MAD";
   } else if (city === "Algeria") {
-    unitPrice = "DZD";
-  } else if (city === "Senegal") {
-    unitPrice = "XOF";
-  } else if (city === "Côte d'Ivoire") {
-    unitPrice = "XOF";
-  } else if (city === "Benin") {
-    unitPrice = "XOF";
+    symbol = "DZD";
+  } else if (city === "Senegal" || city === "Côte d'Ivoire" || city === "Benin") {
+    symbol = "XOF";
   } else if (city === "Lebanon") {
-    unitPrice = "dollar";
+    symbol = "$"; // dollar symbol
   } else if (city === "Egypt") {
-    unitPrice = "EGP";
+    symbol = "EGP";
   } else {
-    return "dollar";
+    symbol = "$"; // default to dollar symbol
   }
-  return unitPrice;
+
+  // Return the symbol
+  switch (symbol) {
+    case "TND":
+      return "د.ت"; // Tunisian Dinar symbol
+    case "MAD":
+      return "د.م."; // Moroccan Dirham symbol
+    case "DZD":
+      return "د.ج"; // Algerian Dinar symbol
+    case "XOF":
+      return "CFA"; // West African CFA Franc symbol
+    case "EGP":
+      return "E£"; // Egyptian Pound symbol
+    default:
+      return "$"; // default to dollar symbol
+  }
 };

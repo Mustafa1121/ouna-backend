@@ -16,4 +16,6 @@ app.use('/api/user/address',require('./routes/Address/AddressRoute'))
 app.use('/api/products',require('./routes/Product/ProductRoute'))
 
 const PORT = process.env.PORT || 3306;
-app.listen(PORT, console.log(`server is running at http://localhost:${PORT}`));
+app.listen(PORT, () => {
+    console.log(`server is running at http://localhost:${PORT}`)
+});
