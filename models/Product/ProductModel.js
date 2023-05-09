@@ -12,7 +12,7 @@ const videoSchema = new mongoose.Schema({
   },
 });
 
-const itemSchema = new mongoose.Schema(
+const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -71,4 +71,4 @@ const itemSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Item", itemSchema);
+module.exports = mongoose.model("Product", productSchema);
