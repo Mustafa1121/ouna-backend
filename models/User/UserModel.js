@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcrypt')
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -46,12 +47,11 @@ const userSchema = new mongoose.Schema(
     verificationToken: String,
     isEmailVerified: {
       type: Boolean,
-      default: false,                                                                                                                                                                                                                                                                       
+      default: false,
     },
   },
   { timestamps: true }
 );
-
 
 // Hash pass before saving
 userSchema.pre("save", async function (next) {
@@ -86,6 +86,5 @@ userSchema.methods.generateResetPasswordToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
-
 
 module.exports = mongoose.model("User", userSchema);

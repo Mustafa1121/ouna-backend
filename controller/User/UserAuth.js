@@ -1,4 +1,5 @@
 const User = require("../../models/User/UserModel");
+const crypto = require("crypto");
 
 // Helper function
 const createSendToken = require("../../helpers/sendToken").createSendToken;
@@ -24,8 +25,8 @@ exports.login = async (req, res) => {
     createSendToken(user, 200, res);
   } catch (error) {
     res.status(500).json({
-      message: error.message
-    })
+      message: error.message,
+    });
   }
 };
 
@@ -50,6 +51,7 @@ exports.register = async (req, res) => {
 
     // Save user to database
     await user.save();
+    await exports.verifyEmail(req, res);
     createSendToken(user, 201, res);
   } catch (error) {}
 };
@@ -60,6 +62,7 @@ exports.verifyEmail = async (req, res) => {
   try {
     // Check if user exists
     let user = await User.findOne({ email });
+    console.log(user)
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
     }
@@ -71,22 +74,24 @@ exports.verifyEmail = async (req, res) => {
 
     // send email
     await sendMail({
-      to: user.email,
+      email: email,
       subject: "Account Verification",
-      text: `Hello ${
+      message: `Hello ${
         user.Fname
       },\n\nPlease click on the following link to verify your account:\n\n${
         req.protocol
       }://${req.get(
         "host"
-      )}/api/users/verify-email/${verificationToken}\n\nIf you did not request this, please ignore this email.\n`,
+      )}/api/user/auth/verify-email/${verificationToken}\n\nIf you did not request this, please ignore this email.\n`,
     });
 
     // Send success response
     res.json({ msg: "Verification email sent" });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({
+      message: 'Server error'
+    });
   }
 };
 
@@ -186,13 +191,6 @@ exports.resetPassword = async (req, res) => {
     if (req.body.password !== req.body.passwordConfirm) {
       return res.status(400).json({
         message: "Password & PasswordConfirm are not the same",
-      });
-    }
-
-    // to prevent to reset over the same old password
-    if (await user.checkForTheResetPasswordHistory(req.body.password)) {
-      return res.status(404).json({
-        message: "Please enter a password that you didn't use it before",
       });
     }
 
