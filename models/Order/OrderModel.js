@@ -2,24 +2,25 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    orderOwner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     totalPrice: {
       type: Number,
       default: 0,
     },
-    items: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Item",
-      },
-    ],
+    cart: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+    },
     status: {
       type: String,
       enum: ["Pending", "Delivered"],
+    },
+    address: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+    },
+    preferredTime: {
+      type: String,
+      required: true,
     },
   },
   {
