@@ -74,8 +74,13 @@ exports.getSingleProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const { origin } = req.body;
-    const products = await Product.find({ origin: origin });
+    const { origin } = req.params;
+    let products;
+    if (origin) {
+      products = await Product.find({ origin: origin });
+    } else {
+      products = await Product.find({ origin: "Lebanon" });
+    }
     return res.status(200).json({ message: "All products", products });
   } catch (error) {
     console.log(error);
