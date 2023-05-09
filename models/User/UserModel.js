@@ -39,8 +39,53 @@ const userSchema = new mongoose.Schema(
       default: 0,
       trim: true,
     },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    verificationToken: String,
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("User", userSchema);
+
+// Hash pass before saving
+userSchema.pre("save", async function (next) {
+  try {
+    if (!this.isModified("password")) {
+      return next();
+    }
+
+    await this.addToPasswordHistory(this.password);
+
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined;
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// comparing password
+userSchema.methods.comparePassword = async function (
+  plainPassword,
+  hashedPassword
+) {
+  return await bcrypt.compare(plainPassword, hashedPassword);
+};
+
+// generate for reset password
+userSchema.methods.generateResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  // saved in the DB in a hashed way
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  // 10 min of validity
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
+};
