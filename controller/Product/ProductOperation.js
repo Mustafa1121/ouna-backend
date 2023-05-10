@@ -24,6 +24,7 @@ exports.addProduct = async (req, res) => {
       owner: req.user._id,
       description: data.description,
       recycling: data.recycling,
+      rating: data.rating,
       origin: data.origin,
       unitPrice: getUnitPrice(data.origin),
     });
