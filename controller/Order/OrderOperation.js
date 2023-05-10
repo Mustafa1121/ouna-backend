@@ -1,6 +1,7 @@
 const Order = require("../../models/Order/OrderModel");
 const Product = require("../../models/Product/ProductModel");
 const Cart = require("../../models/Cart/CartModel");
+const { sendMail } = require("../../helpers/sendEmail");
 
 // helpers
 const calculateTotalPrice = async (itemsArray) => {
@@ -62,6 +63,27 @@ exports.checkout = async (req, res) => {
       preferredTime,
       country,
     });
+
+    // send email for the customer
+    await sendMail({
+      email: req.user.email,
+      subject: "Your order is on its way!",
+      message: `Dear ${req.user.Fname},\n\nYour order with reference number ${cartId} is on its way. You can expect to receive it within the next few days. \n\nThank you for shopping with us!\n\nBest regards`,
+    });
+
+    // send email for the owner
+    const productOwner = await User.findById(cart.itemsArray[0].product.owner);
+    await sendMail({
+      email: productOwner.email,
+      subject: "Your product has been sold!",
+      message: `Your product (${cart.itemsArray[0].product.name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
+    });
+
+    // Remove the products from the Products collection
+    for (let i = 0; i < cart.itemsArray.length; i++) {
+      const product = cart.itemsArray[i].product;
+      await Product.findByIdAndDelete(product._id);
+    }
 
     // Save the order document to the database
     await order.save();
