@@ -1,4 +1,5 @@
 const Product = require("../../models/Product/ProductModel");
+const User = require('../../models/User/UserModel')
 const cloudinary = require("cloudinary").v2;
 
 // helpers
@@ -94,5 +95,37 @@ exports.getProductsByCategory = async (req, res) => {
     return res.status(200).json({ message: "Category", products });
   } catch (error) {
     console.log(error);
+  }
+};
+
+// IMPORTANT
+exports.deleteOldProducts = async (req, res) => {
+  try {
+    // Get all products that are more than 30 days old
+    const thirtyDaysAgo = new Date(new Date() - 30 * 24 * 60 * 60 * 1000);
+    const oldProducts = await Product.find({ createdAt: { $lt: thirtyDaysAgo } });
+
+    // Delete each old product and send an email to the owner
+    for (const product of oldProducts) {
+      const ownerId = product.owner;
+      await product.remove();
+
+      // Send an email to the owner of the deleted product
+      const owner = await User.findById(ownerId);
+      if (owner) {
+        const subject = "Product Deletion Notification";
+        const message = `Dear ${owner.Fname},\n\nYour product "${product.name}" has been deleted because it was more than 30 days old.\n\nBest regards,\nThe Admin Team`;
+        await sendEmail(owner.email, subject, message);
+      }
+    }
+
+    return res.status(200).json({
+      message: "Old products have been deleted and notifications sent to their owners",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };
