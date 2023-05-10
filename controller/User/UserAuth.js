@@ -168,9 +168,10 @@ exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
     // send the token via email
     // 3.1 create url
-    const url = `${req.protocol}://${req.get(
-      "host"
-    )}/api/auth/resetPassword/${resetToken}`;
+    // const url = `${req.protocol}://${req.get(
+    //   "host"
+    // )}/resetPassword/${resetToken}`;
+    const url = `${req.protocol}://localhost:3000/resetPassword/${resetToken}`;
     const msg = `Forgot your password? Reset it by following this link ${url}`;
 
     // 3.2 send mail
