@@ -5,7 +5,6 @@ const cloudinary = require("cloudinary").v2;
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
 
-console.log(process.env.CLOUDINARY_CLOUD_NAME);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -78,9 +77,9 @@ exports.getAllProducts = async (req, res) => {
     const { origin } = req.params;
     let products;
     if (origin) {
-      products = await Product.find({ origin: origin });
+      products = await Product.find({ origin: origin }).populate('category');
     } else {
-      products = await Product.find({ origin: "Lebanon" });
+      products = await Product.find({ origin: "Lebanon" }).populate('category');
     }
     return res.status(200).json({ message: "All products", products });
   } catch (error) {
