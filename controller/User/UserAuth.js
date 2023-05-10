@@ -64,6 +64,33 @@ exports.register = async (req, res) => {
   } catch (error) {}
 };
 
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    // Check if old password is correct
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const isMatch = await user.comparePassword(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Incorrect old password" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.passwordChangedAt = Date.now();
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
 // Verify Email
 exports.verifyEmail = async (req, res) => {
   const { email } = req.body;

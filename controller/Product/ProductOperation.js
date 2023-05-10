@@ -1,10 +1,9 @@
 const Product = require("../../models/Product/ProductModel");
-const User = require('../../models/User/UserModel')
+const User = require("../../models/User/UserModel");
 const cloudinary = require("cloudinary").v2;
 
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
-
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -46,7 +45,6 @@ exports.addProduct = async (req, res) => {
       });
       newProduct.video = { url: video.secure_url };
     }
-    console.log(newProduct);
     await newProduct.save();
     return res
       .status(200)
@@ -76,9 +74,9 @@ exports.getAllProducts = async (req, res) => {
     const { origin } = req.params;
     let products;
     if (origin) {
-      products = await Product.find({ origin: origin }).populate('category');
+      products = await Product.find({ origin: origin }).populate("category");
     } else {
-      products = await Product.find({ origin: "Lebanon" }).populate('category');
+      products = await Product.find({ origin: "Lebanon" }).populate("category");
     }
     return res.status(200).json({ message: "All products", products });
   } catch (error) {
@@ -87,9 +85,9 @@ exports.getAllProducts = async (req, res) => {
 };
 
 exports.getProductsByCategory = async (req, res) => {
-  const { id } = req.params; //the category id
+  const { id, origin } = req.params; //the category id
   try {
-    const products = await Product.find({ category: id });
+    const products = await Product.find({ category: id, origin: origin });
     return res.status(200).json({ message: "Category", products });
   } catch (error) {
     console.log(error);
@@ -101,7 +99,9 @@ exports.deleteOldProducts = async (req, res) => {
   try {
     // Get all products that are more than 30 days old
     const thirtyDaysAgo = new Date(new Date() - 30 * 24 * 60 * 60 * 1000);
-    const oldProducts = await Product.find({ createdAt: { $lt: thirtyDaysAgo } });
+    const oldProducts = await Product.find({
+      createdAt: { $lt: thirtyDaysAgo },
+    });
 
     // Delete each old product and send an email to the owner
     for (const product of oldProducts) {
@@ -118,7 +118,8 @@ exports.deleteOldProducts = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: "Old products have been deleted and notifications sent to their owners",
+      message:
+        "Old products have been deleted and notifications sent to their owners",
     });
   } catch (error) {
     console.log(error);

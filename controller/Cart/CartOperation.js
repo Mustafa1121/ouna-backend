@@ -8,8 +8,15 @@ exports.addToCart = async (req, res) => {
     const item = await Product.findById(req.params.itemId);
 
     if (!item) {
-      return res.status(404).json({ error: "Item not found" });
+      return res.status(404).json({ message: "Item not found" });
     }
+
+    if (item.reserved) {
+      return res.status(400).json({ message: "Item is already reserved" });
+    }
+    // Mark the product as reserved
+    item.reserved = true;
+    await item.save();
 
     if (!cart) {
       const newCart = new Cart({ cartOwner: req.user._id });
@@ -31,11 +38,15 @@ exports.addToCart = async (req, res) => {
 exports.deleteFromCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ cartOwner: req.user._id });
-
     if (!cart) {
-      return res.status(404).json({ error: "Cart not found" });
+      return res.status(404).json({ message: "Cart not found" });
     }
-
+    const item = await Product.findById(req.params.itemId);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+    item.reserved = false;
+    await item.save();
     cart.itemsArray.pull(req.params.itemId);
     await cart.save();
     return res.status(200).json(cart);
@@ -51,8 +62,19 @@ exports.clearCart = async (req, res) => {
     const cart = await Cart.findOne({ cartOwner: req.user._id });
 
     if (!cart) {
-      return res.status(404).json({ error: "Cart not found" });
+      return res.status(404).json({ message: "Cart not found" });
     }
+
+    // Set the reserved property to false for all items in the cart
+    await Promise.all(
+      cart.itemsArray.map(async (item) => {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.reserved = false;
+          await product.save();
+        }
+      })
+    );
 
     cart.itemsArray = [];
     await cart.save();
@@ -64,14 +86,13 @@ exports.clearCart = async (req, res) => {
 };
 
 exports.getCartItems = async (req, res) => {
-    try {
-      const cart = await Cart.findOne({ cartOwner: req.user._id }).populate(
-        "itemsArray"
-      );
-      res.status(200).json({ items: cart.itemsArray });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error" });
-    }
-  };
-
+  try {
+    const cart = await Cart.findOne({ cartOwner: req.user._id }).populate(
+      "itemsArray"
+    );
+    res.status(200).json({ items: cart.itemsArray });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
