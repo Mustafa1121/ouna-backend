@@ -21,6 +21,14 @@ exports.login = async (req, res) => {
         message: "Incorrect Credentials",
       });
     }
+
+    // check if the user's email is verified
+    if (!user.isEmailVerified) {
+      return res.status(401).json({
+        message: "Email is not verified",
+      });
+    }
+
     // if everything is oke Log the user in
     createSendToken(user, 200, res);
   } catch (error) {
@@ -62,7 +70,7 @@ exports.verifyEmail = async (req, res) => {
   try {
     // Check if user exists
     let user = await User.findOne({ email });
-    console.log(user)
+    console.log(user);
     if (!user) {
       return res.status(400).json({ msg: "User not found" });
     }
@@ -90,7 +98,7 @@ exports.verifyEmail = async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({
-      message: 'Server error'
+      message: "Server error",
     });
   }
 };
