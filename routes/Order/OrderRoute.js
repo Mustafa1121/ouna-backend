@@ -6,7 +6,7 @@ const isAuth = require("../../middleware/User/isAuthMiddleware");
 const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 
 // Create a new order
-router.post("/", isAuth, isVerified, controller.createOrder);
+router.post("/", isAuth, isVerified, controller.checkout);
 
 // Update the status of an existing order
 router.patch("/:orderId", isAuth, controller.updateOrderStatus);
