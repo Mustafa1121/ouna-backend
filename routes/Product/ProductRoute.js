@@ -8,7 +8,7 @@ const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 
 // GET (SINGLE PRODUCT)
 router.get("/:id", controller.getSingleProduct);
-router.get("/:origin?", controller.getAllProducts);
+router.get("/all/:origin?", controller.getAllProducts);
 // GET (ALL PRODUCTS)
 router.get("/", controller.getAllProducts);
 // POST (ADD PRODUCT)
