@@ -68,7 +68,7 @@ exports.clearCart = async (req, res) => {
     // Set the reserved property to false for all items in the cart
     await Promise.all(
       cart.itemsArray.map(async (item) => {
-        const product = await Product.findById(item.product);
+        const product = await Product.findById(item);
         if (product) {
           product.reserved = false;
           await product.save();

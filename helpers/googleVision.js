@@ -1,41 +1,47 @@
-const Category = require('../models/Category/CategoryModel')
+const Category = require("../models/Category/CategoryModel");
 const vision = require("@google-cloud/vision");
 
-async function classifyImages(imageFiles) {
+async function detect(image) {
   // Creates a client
   const client = new vision.ImageAnnotatorClient({
-    keyFilename:
-      process.env.upload_path + "/../../ai.json",
+    keyFilename: "../ai.json",
   });
 
   try {
-    const categories = await Category.find();
+    // Get all categories from the database
+    const categories = await Category.find({});
+    console.log(categories);
 
-    // Classify each image
-    const classifications = [];
-    for (const file of imageFiles) {
-      const results = await client.labelDetection(
-        process.env.upload_path + file
-      );
-      const labels = results[0].labelAnnotations.map(
-        (label) => label.description
-      );
-      classifications.push(labels);
-    }
-
-    // Check if any classification includes electronics
-    const hasElectronics = classifications.some((labels) =>
-      labels.some((label) => label.toLowerCase().includes("electronics"))
+    // Classify the image
+    const results = await client.annotateImage({
+      image: {
+        content: Buffer.from(image, "base64"),
+      },
+      features: [{ type: "LABEL_DETECTION" }],
+    });
+    const labels = results[0].labelAnnotations.map(
+      (label) => label.description
     );
 
-    return hasElectronics;
+    // Check if any category is included in the labels
+    const resultArray = [];
+    categories.forEach((element) => {
+      if (labels.includes(element.name)) {
+        resultArray.push(element._id);
+      }
+    });
+
+    // If a category is found
+    if (resultArray.length > 0) {
+      resultArray.push(labels.join(","));
+      return resultArray;
+    }
+
+    return "Category did not match any classification!";
   } catch (e) {
     console.log("error of Google API: " + e);
-    return false;
+    return "";
   }
 }
 
-module.exports = classifyImages
-
-// const hasElectronics = await classifyImages(imageFiles);
-// console.log(hasElectronics); // true or false
+module.exports = detect;
