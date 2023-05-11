@@ -90,7 +90,12 @@ exports.getCartItems = async (req, res) => {
     const cart = await Cart.findOne({ cartOwner: req.user._id }).populate(
       "itemsArray"
     );
-    if (cart.itemsArray == null) {
+    if(!cart){
+      return res.status(404).json({
+        message: "No Cart Found",
+      });
+    }
+    if (cart.itemsArray.length == 0) {
       return res.status(404).json({
         message: "No Items Found",
       });
