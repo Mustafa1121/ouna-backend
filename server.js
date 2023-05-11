@@ -16,6 +16,7 @@ app.use("/api/user/address", require("./routes/Address/AddressRoute"));
 app.use("/api/products", require("./routes/Product/ProductRoute"));
 app.use("/api/order", require("./routes/Order/OrderRoute"));
 app.use("/api/category", require("./routes/Category/CategoryRoute"));
+app.use('/api',require('./routes/Cart/CartRoute'))
 
 const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {
