@@ -17,9 +17,6 @@ async function classifyImages(imageFiles) {
       const results = await client.labelDetection(
         process.env.upload_path + file
       );
-
-      console.log("results", results[0].labelAnnotations);
-
       const labels = results[0].labelAnnotations.map(
         (label) => label.description
       );

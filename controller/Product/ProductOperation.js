@@ -39,7 +39,6 @@ exports.addProduct = async (req, res) => {
         newProduct.images = imagesArray;
       }
     }
-    console.log(classifyImages(images));
     if (video) {
       const video = await cloudinary.uploader.upload(video, {
         resource_type: "video",
