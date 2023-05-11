@@ -1,7 +1,7 @@
 const Product = require("../../models/Product/ProductModel");
 const User = require("../../models/User/UserModel");
 const cloudinary = require("cloudinary").v2;
-const classifyImages = require('../../helpers/googleVision')
+const classifyImages = require("../../helpers/googleVision");
 
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
@@ -31,7 +31,6 @@ exports.addProduct = async (req, res) => {
     });
     if (images) {
       for (let j = 0; j < images.length; j++) {
-        console.log(images[j]);
         const url = await cloudinary.uploader.upload(images[j], {
           folder: "products_folder",
           resource_type: "image",
@@ -40,7 +39,7 @@ exports.addProduct = async (req, res) => {
         newProduct.images = imagesArray;
       }
     }
-    console.log(classifyImages(images))
+    console.log(classifyImages(images));
     if (video) {
       const video = await cloudinary.uploader.upload(video, {
         resource_type: "video",
@@ -81,7 +80,7 @@ exports.getAllProducts = async (req, res) => {
     } else {
       products = await Product.find({ origin: "Lebanon" }).populate("category");
     }
-    return res.status(200).json({ message: "All products", products });
+    return res.status(200).json({ products });
   } catch (error) {
     console.log(error);
   }
