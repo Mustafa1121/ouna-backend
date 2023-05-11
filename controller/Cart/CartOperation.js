@@ -90,7 +90,7 @@ exports.getCartItems = async (req, res) => {
     const cart = await Cart.findOne({ cartOwner: req.user._id }).populate(
       "itemsArray"
     );
-    res.status(200).json({ items: cart.itemsArray });
+    res.status(200).json({ items: cart.itemsArray, id: cart._id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

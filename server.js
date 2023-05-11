@@ -19,6 +19,7 @@ app.use("/api/category", require("./routes/Category/CategoryRoute"));
 
 const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {
+  // require('./models/Category/CategoryModel').insertMany(require('./config/categories').categoryNames)
   console.log(`server is running at http://localhost:${PORT}`);
 });
 
