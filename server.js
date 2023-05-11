@@ -5,7 +5,7 @@ const app = require("express")();
 require("./database").connectDB();
 
 // Middleware
-app.use(require("express").json());
+app.use(require("express").json({ limit: "50mb" }));
 app.use(require("body-parser").json());
 app.use(require("body-parser").urlencoded({ extended: false, limit: "50mb" }));
 app.use(require("cors")());
@@ -16,7 +16,7 @@ app.use("/api/user/address", require("./routes/Address/AddressRoute"));
 app.use("/api/products", require("./routes/Product/ProductRoute"));
 app.use("/api/order", require("./routes/Order/OrderRoute"));
 app.use("/api/category", require("./routes/Category/CategoryRoute"));
-app.use('/api',require('./routes/Cart/CartRoute'))
+app.use("/api", require("./routes/Cart/CartRoute"));
 
 const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {

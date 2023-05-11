@@ -1,6 +1,7 @@
 const Product = require("../../models/Product/ProductModel");
 const User = require("../../models/User/UserModel");
 const cloudinary = require("cloudinary").v2;
+const classifyImages = require('../../helpers/googleVision')
 
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
@@ -39,6 +40,7 @@ exports.addProduct = async (req, res) => {
         newProduct.images = imagesArray;
       }
     }
+    console.log(classifyImages(images))
     if (video) {
       const video = await cloudinary.uploader.upload(video, {
         resource_type: "video",

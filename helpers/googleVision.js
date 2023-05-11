@@ -38,5 +38,7 @@ async function classifyImages(imageFiles) {
   }
 }
 
+module.exports = classifyImages
+
 // const hasElectronics = await classifyImages(imageFiles);
 // console.log(hasElectronics); // true or false
