@@ -1,7 +1,10 @@
 const Order = require("../../models/Order/OrderModel");
 const Product = require("../../models/Product/ProductModel");
 const Cart = require("../../models/Cart/CartModel");
+const Address = require("../../models/Address/AddressModel");
 const { sendMail } = require("../../helpers/sendEmail");
+const axios = require("axios");
+const { getUnitPrice } = require("../../helpers/getUnitPrice");
 
 // helpers
 const calculateTotalPrice = async (itemsArray) => {
@@ -18,17 +21,25 @@ const calculateTotalPrice = async (itemsArray) => {
 // Check out the cart and create a new order
 exports.checkout = async (req, res) => {
   try {
+    console.log("hiii");
     const { cartId, addressId, preferredTime, country } = req.body;
 
+    console.log(addressId);
+
     // Get the cart with the given ID
-    const cart = await Cart.findById(cartId).populate("itemsArray.product");
+    const cart = await Cart.findById(cartId).populate("itemsArray");
+    console.log(cart);
 
     // Calculate the total price of the items in the cart
     const totalPrice = await calculateTotalPrice(cart.itemsArray);
 
+    //getAddress
+    const address = await Address.findById(addressId);
+    console.log(address);
+
     // Call the Mylerz API to create a new shipment
     const response = await axios.post(
-      "http://41.33.122.61:8888/MylerzIntegrationStaging/api",
+      "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
       {
         PickupDueDate: preferredTime,
         Package_Serial: 1,
@@ -42,12 +53,12 @@ exports.checkout = async (req, res) => {
         COD_Value: totalPrice,
         Customer_Name: req.user.Fname + " " + req.user.Lname,
         Mobile_No: req.user.phone,
-        Street: addressId.additionalAddressInfo,
+        Street: address.additionalAddressInfo,
         Country: country,
-        City: addressId.city,
-        Currency: exports.getUnitPrice(country),
+        City: address.city,
+        Currency: getUnitPrice(country),
         Pieces: cart.itemsArray.map((item) => ({
-          PieceNo: item.product._id,
+          PieceNo: item._id,
         })),
       }
     );
