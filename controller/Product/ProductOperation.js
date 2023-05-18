@@ -46,10 +46,18 @@ exports.addProduct = async (req, res) => {
       });
       newProduct.video = { url: video.secure_url };
     }
-    await newProduct.save();
-    return res
-      .status(200)
-      .json({ message: "Product added to be analyzed", data: newProduct });
+    if (
+      await require("../../helpers/googleVision").performLabelDetection(images)
+    ) {
+      await newProduct.save();
+      return res
+        .status(200)
+        .json({ message: "Product accepted", data: newProduct });
+    } else {
+      return res.status(400).json({
+        message: "Rejected by Ai",
+      });
+    }
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

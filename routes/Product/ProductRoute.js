@@ -12,6 +12,6 @@ router.get("/:id", controller.getSingleProduct);
 router.get("/all/:origin?", controller.getAllProducts);
 // POST (ADD PRODUCT)
 router.post("/addProduct", isVerified, isAuth, controller.addProduct);
-router.get("/category/:id", controller.getProductsByCategory);
+router.get("/category/:id/:origin", controller.getProductsByCategory);
 
 module.exports = router;
