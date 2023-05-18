@@ -18,6 +18,25 @@ app.use("/api/order", require("./routes/Order/OrderRoute"));
 app.use("/api/category", require("./routes/Category/CategoryRoute"));
 app.use("/api", require("./routes/Cart/CartRoute"));
 
+const vision = require("@google-cloud/vision");
+const client = new vision.ImageAnnotatorClient({
+  keyFilename: "./ai.json",
+});
+
+// Performs label detection on the image file
+client
+  .labelDetection("./iPhone-SE-2022-Starlight-Back-in-Hand.jpg")
+  .then((results) => {
+    const labels = results[0].labelAnnotations;
+
+    console.log("Labels:");
+    labels.forEach((label) => console.log(label.description));
+    //console.log(results);
+  })
+  .catch((err) => {
+    console.error("ERROR:", err);
+  });
+
 const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {
   // require('./models/Category/CategoryModel').insertMany(require('./config/categories').categoryNames)
