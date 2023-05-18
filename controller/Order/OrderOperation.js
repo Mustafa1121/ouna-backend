@@ -2,6 +2,7 @@ const Order = require("../../models/Order/OrderModel");
 const Product = require("../../models/Product/ProductModel");
 const Cart = require("../../models/Cart/CartModel");
 const Address = require("../../models/Address/AddressModel");
+const User = require("../../models/User/UserModel");
 const { sendMail } = require("../../helpers/sendEmail");
 const axios = require("axios");
 const { getUnitPrice } = require("../../helpers/getUnitPrice");
@@ -37,33 +38,33 @@ exports.checkout = async (req, res) => {
     const address = await Address.findById(addressId);
     console.log(address);
 
-    // Call the Mylerz API to create a new shipment
-    const response = await axios.post(
-      "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
-      {
-        PickupDueDate: preferredTime,
-        Package_Serial: 1,
-        Reference: cartId,
-        Description: "A package with " + cart.itemsArray.length + " items",
-        Service_Type: "DTD",
-        Service: "SD",
-        ServiceDate: new Date().toISOString(),
-        Service_Category: "Delivery",
-        Payment_Type: "COD",
-        COD_Value: totalPrice,
-        Customer_Name: req.user.Fname + " " + req.user.Lname,
-        Mobile_No: req.user.phone,
-        Street: address.additionalAddressInfo,
-        Country: country,
-        City: address.city,
-        Currency: getUnitPrice(country),
-        Pieces: cart.itemsArray.map((item) => ({
-          PieceNo: item._id,
-        })),
-      }
-    );
+    // // Call the Mylerz API to create a new shipment
+    // const response = await axios.post(
+    //   "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
+    //   {
+    //     PickupDueDate: preferredTime,
+    //     Package_Serial: 1,
+    //     Reference: cartId,
+    //     Description: "A package with " + cart.itemsArray.length + " items",
+    //     Service_Type: "DTD",
+    //     Service: "SD",
+    //     ServiceDate: new Date().toISOString(),
+    //     Service_Category: "Delivery",
+    //     Payment_Type: "COD",
+    //     COD_Value: totalPrice,
+    //     Customer_Name: req.user.Fname + " " + req.user.Lname,
+    //     Mobile_No: req.user.phone,
+    //     Street: address.additionalAddressInfo,
+    //     Country: country,
+    //     City: address.city,
+    //     Currency: getUnitPrice(country),
+    //     Pieces: cart.itemsArray.map((item) => ({
+    //       PieceNo: item._id,
+    //     })),
+    //   }
+    // );
 
-    console.log(response);
+    // console.log(response);
 
     // Create a new order document
     const order = new Order({
@@ -83,16 +84,16 @@ exports.checkout = async (req, res) => {
     });
 
     // send email for the owner
-    const productOwner = await User.findById(cart.itemsArray[0].product.owner);
+    const productOwner = await User.findById(cart.itemsArray[0].owner);
     await sendMail({
       email: productOwner.email,
       subject: "Your product has been sold!",
-      message: `Your product (${cart.itemsArray[0].product.name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
+      message: `Your product (${cart.itemsArray[0].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
     });
 
     // Remove the products from the Products collection
     for (let i = 0; i < cart.itemsArray.length; i++) {
-      const product = cart.itemsArray[i].product;
+      const product = cart.itemsArray[i];
       await Product.findByIdAndDelete(product._id);
     }
 
