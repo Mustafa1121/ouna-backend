@@ -16,7 +16,7 @@ exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
     const images = data.imagesbase;
-    const video = data.video64base;
+    const video = data.base64Video;
     let imagesArray = [];
     const newProduct = new Product({
       name: data.name,
@@ -29,26 +29,27 @@ exports.addProduct = async (req, res) => {
       origin: data.origin,
       unitPrice: getUnitPrice(data.origin),
     });
-    if (images) {
-      for (let j = 0; j < images.length; j++) {
-        const url = await cloudinary.uploader.upload(images[j], {
-          folder: "products_folder",
-          resource_type: "image",
-        });
-        imagesArray.push({ url: url.secure_url });
-        newProduct.images = imagesArray;
-      }
-    }
-    if (video) {
-      const video = await cloudinary.uploader.upload(video, {
-        resource_type: "video",
-        folder: "Video_folder",
-      });
-      newProduct.video = { url: video.secure_url };
-    }
     if (
       await require("../../helpers/googleVision").performLabelDetection(images)
     ) {
+      if (images) {
+        for (let j = 0; j < images.length; j++) {
+          const url = await cloudinary.uploader.upload(images[j], {
+            folder: "products_folder",
+            resource_type: "image",
+          });
+          imagesArray.push({ url: url.secure_url });
+          newProduct.images = imagesArray;
+        }
+      }
+      if (video) {
+        console.log("hii1");
+        const video1 = await cloudinary.uploader.upload(video, {
+          resource_type: "video",
+          folder: "Video_folder",
+        });
+        newProduct.video = { url: video1.secure_url };
+      }
       await newProduct.save();
       return res
         .status(200)
@@ -65,7 +66,8 @@ exports.addProduct = async (req, res) => {
 exports.getSingleProduct = async (req, res) => {
   const { id } = req.params;
   try {
-    const item = await Product.findById(id);
+    const item = await Product.findById(id).populate("video");
+    console.log(item);
     if (!item) {
       return res
         .status(404)
