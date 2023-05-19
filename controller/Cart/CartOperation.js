@@ -22,12 +22,18 @@ exports.addToCart = async (req, res) => {
       const newCart = new Cart({ cartOwner: req.user._id });
       newCart.itemsArray.push(item._id);
       await newCart.save();
-      return res.status(200).json(newCart);
+      const NewOne = await Cart.findOne({ cartOwner: req.user._id }).populate(
+        "itemsArray"
+      );
+      return res.status(200).json(NewOne);
     }
 
     cart.itemsArray.push(item._id);
     await cart.save();
-    return res.status(200).json(cart);
+    const NewOne = await Cart.findOne({ cartOwner: req.user._id }).populate(
+      "itemsArray"
+    );
+    return res.status(200).json(NewOne);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -90,7 +96,7 @@ exports.getCartItems = async (req, res) => {
     const cart = await Cart.findOne({ cartOwner: req.user._id }).populate(
       "itemsArray"
     );
-    if(!cart){
+    if (!cart) {
       return res.status(404).json({
         message: "No Cart Found",
       });
