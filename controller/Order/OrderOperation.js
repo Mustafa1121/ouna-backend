@@ -21,7 +21,6 @@ const calculateTotalPrice = async (itemsArray) => {
 // Check out the cart and create a new order
 exports.checkout = async (req, res) => {
   try {
-    console.log("hiii");
     const { cartId, addressId, preferredTime, country } = req.body;
 
     console.log(addressId);
