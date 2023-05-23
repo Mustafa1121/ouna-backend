@@ -30,9 +30,7 @@ async function performLabelDetection(imageURLs) {
       },
       labelsArray[0].map((label) => label.description)
     );
-    console.log(commonLabels);
     const hasCommonLabel = commonLabels.length > 0;
-    console.log(hasCommonLabel);
     return hasCommonLabel;
   } catch (err) {
     console.error("ERROR:", err);
