@@ -82,17 +82,17 @@ exports.checkout = async (req, res) => {
     });
 
     // send email for the owner
-    const productOwner = await User.findById(cart.itemsArray[0].product.owner);
+    const productOwner = await User.findById(cart.itemsArray[0].owner);
     await sendMail({
       email: productOwner.email,
       subject: "Your product has been sold!",
-      message: `Your product (${cart.itemsArray[0].product.name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
+      message: `Your product (${cart.itemsArray[0].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
     });
 
     // Remove the products from the Products collection
     for (let i = 0; i < cart.itemsArray.length; i++) {
-      const product = cart.itemsArray[i].product;
-      await Product.findByIdAndDelete(product._id);
+      const product = cart.itemsArray[i];
+      await Product.findByIdAndDelete(product);
     }
 
     // Save the order document to the database
