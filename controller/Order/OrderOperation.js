@@ -37,30 +37,30 @@ exports.checkout = async (req, res) => {
     console.log(address);
 
     // Call the Mylerz API to create a new shipment
-    const response = await axios.post(
-      "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
-      {
-        PickupDueDate: preferredTime,
-        Package_Serial: 1,
-        Reference: cartId,
-        Description: "A package with " + cart.itemsArray.length + " items",
-        Service_Type: "DTD",
-        Service: "SD",
-        ServiceDate: new Date().toISOString(),
-        Service_Category: "Delivery",
-        Payment_Type: "COD",
-        COD_Value: totalPrice,
-        Customer_Name: req.user.Fname + " " + req.user.Lname,
-        Mobile_No: req.user.phone,
-        Street: address.additionalAddressInfo,
-        Country: country,
-        City: address.city,
-        Currency: getUnitPrice(country),
-        Pieces: cart.itemsArray.map((item) => ({
-          PieceNo: item._id,
-        })),
-      }
-    );
+    // const response = await axios.post(
+    //   "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
+    //   {
+    //     PickupDueDate: preferredTime,
+    //     Package_Serial: 1,
+    //     Reference: cartId,
+    //     Description: "A package with " + cart.itemsArray.length + " items",
+    //     Service_Type: "DTD",
+    //     Service: "SD",
+    //     ServiceDate: new Date().toISOString(),
+    //     Service_Category: "Delivery",
+    //     Payment_Type: "COD",
+    //     COD_Value: totalPrice,
+    //     Customer_Name: req.user.Fname + " " + req.user.Lname,
+    //     Mobile_No: req.user.phone,
+    //     Street: address.additionalAddressInfo,
+    //     Country: country,
+    //     City: address.city,
+    //     Currency: getUnitPrice(country),
+    //     Pieces: cart.itemsArray.map((item) => ({
+    //       PieceNo: item._id,
+    //     })),
+    //   }
+    // );
 
     console.log(response);
 
