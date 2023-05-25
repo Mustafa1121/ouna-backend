@@ -2,8 +2,8 @@ const Order = require("../../models/Order/OrderModel");
 const Product = require("../../models/Product/ProductModel");
 const Cart = require("../../models/Cart/CartModel");
 const Address = require("../../models/Address/AddressModel");
+const User = require('../../models/User/UserModel')
 const { sendMail } = require("../../helpers/sendEmail");
-const axios = require("axios");
 const { getUnitPrice } = require("../../helpers/getUnitPrice");
 
 // helpers
