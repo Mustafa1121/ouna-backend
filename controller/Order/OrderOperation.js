@@ -23,18 +23,14 @@ exports.checkout = async (req, res) => {
   try {
     const { cartId, addressId, preferredTime, country } = req.body;
 
-    console.log(addressId);
-
     // Get the cart with the given ID
     const cart = await Cart.findById(cartId).populate("itemsArray");
-    console.log(cart);
 
     // Calculate the total price of the items in the cart
     const totalPrice = await calculateTotalPrice(cart.itemsArray);
 
     //getAddress
     const address = await Address.findById(addressId);
-    console.log(address);
 
     // Call the Mylerz API to create a new shipment
     // const response = await axios.post(
@@ -83,6 +79,7 @@ exports.checkout = async (req, res) => {
 
     // send email for the owner
     const productOwner = await User.findById(cart.itemsArray[0].owner);
+    console.log(productOwner)
     await sendMail({
       email: productOwner.email,
       subject: "Your product has been sold!",
