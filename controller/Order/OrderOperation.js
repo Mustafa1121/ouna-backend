@@ -62,7 +62,7 @@ exports.checkout = async (req, res) => {
     //   }
     // );
 
-    console.log(response);
+    // console.log(response);
 
     // Create a new order document
     const order = new Order({
