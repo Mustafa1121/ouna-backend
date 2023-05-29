@@ -15,9 +15,15 @@ cloudinary.config({
 exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
-    const images = data.imagesbase;
+    let images = data.imagesbase;
     const video = data.base64Video;
     let imagesArray = [];
+
+    // Convert imagesbase to array if it's not already
+    if (!Array.isArray(images)) {
+      images = [images];
+    }
+
     const newProduct = new Product({
       name: data.name,
       price: data.price,
@@ -30,9 +36,8 @@ exports.addProduct = async (req, res) => {
       location: data.location,
       unitPrice: getUnitPrice(data.origin),
     });
-    if (
-      await require("../../helpers/googleVision").performLabelDetection(images)
-    ) {
+
+    if (await require("../../helpers/googleVision").performLabelDetection(images)) {
       if (images) {
         for (let j = 0; j < images.length; j++) {
           const url = await cloudinary.uploader.upload(images[j], {
@@ -52,18 +57,15 @@ exports.addProduct = async (req, res) => {
         newProduct.video = { url: video1.secure_url };
       }
       await newProduct.save();
-      return res
-        .status(200)
-        .json({ message: "Product accepted", data: newProduct });
+      return res.status(200).json({ message: "Product accepted", data: newProduct });
     } else {
-      return res.status(400).json({
-        message: "Rejected by Ai",
-      });
+      return res.status(400).json({ message: "Rejected by Ai" });
     }
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
 };
+
 exports.getSingleProduct = async (req, res) => {
   const { id } = req.params;
   try {
