@@ -27,6 +27,7 @@ exports.addProduct = async (req, res) => {
       recycling: data.recycling,
       rating: data.rating,
       origin: data.origin,
+      location: data.location,
       unitPrice: getUnitPrice(data.origin),
     });
     if (
