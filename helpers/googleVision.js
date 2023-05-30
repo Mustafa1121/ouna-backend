@@ -1,7 +1,6 @@
 const vision = require("@google-cloud/vision");
 
 async function performLabelDetection(imageURLs) {
-  console.log(imageURLs.length);
   const client = new vision.ImageAnnotatorClient({
     credentials: {
       type: "service_account",
@@ -23,7 +22,8 @@ async function performLabelDetection(imageURLs) {
     const labelsArray = [];
     for (let i = 0; i < imageURLs.length; i++) {
       const imageURL = imageURLs[i];
-      const base64Image = imageURL.replace(/^data:image\/jpeg;base64,/, "");
+      
+      const base64Image = imageURL.replace(/^data:image\/(jpeg|png);base64,/, "");
       const buffer = Buffer.from(base64Image, "base64");
       const [result] = await client.labelDetection(buffer);
       const labels = result.labelAnnotations;
