@@ -15,7 +15,7 @@ cloudinary.config({
 exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
-    console.log(Array.isArray(data.imagesbase));
+    console.log(Array.isArray([data.imagesbase]));
     let images = Array.isArray(data.imagesbase)
       ? data.imagesbase
       : [data.imagesbase];
