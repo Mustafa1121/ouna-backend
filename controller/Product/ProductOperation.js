@@ -16,10 +16,8 @@ exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
     let images = Array.isArray(data.imagesbase)
-      ? data.imagesbase
-      : [data.imagesbase];
-    console.log(typeof images);
-    console.log(images.length);
+    ? data.imagesbase
+    : data.imagesbase.split('IMAGE_BASE');
     const video = data.base64Video;
     let imagesArray = [];
 
