@@ -19,6 +19,7 @@ exports.addProduct = async (req, res) => {
     ? data.imagesbase
     : data.imagesbase.split('IMAGE_BASE');
     const video = data.base64Video;
+    console.log("Mustafa ",video);
     let imagesArray = [];
 
     const newProduct = new Product({
@@ -48,7 +49,6 @@ exports.addProduct = async (req, res) => {
         }
       }
       if (video) {
-        console.log("hii1");
         const video1 = await cloudinary.uploader.upload(video, {
           resource_type: "video",
           folder: "Video_folder",
