@@ -1,6 +1,7 @@
 const vision = require("@google-cloud/vision");
 
 async function performLabelDetection(imageURLs) {
+  console.log(imageURLs.length);
   const client = new vision.ImageAnnotatorClient({
     credentials: {
       type: "service_account",
