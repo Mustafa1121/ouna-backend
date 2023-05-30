@@ -20,7 +20,6 @@ async function performLabelDetection(imageURLs) {
 
   try {
     const labelsArray = [];
-    console.log(imageURLs);
     for (let i = 0; i < imageURLs.length; i++) {
       const imageURL = imageURLs[i];
       const base64Image = imageURL.replace(/^data:image\/jpeg;base64,/, "");
