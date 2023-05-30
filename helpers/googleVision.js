@@ -23,11 +23,10 @@ async function performLabelDetection(imageURLs) {
 
     for (let i = 0; i < imageURLs.length; i++) {
       const imageURL = imageURLs[i];
-      console.log(imageURL);
       const base64Image = imageURL.replace(/^data:image\/jpeg;base64,/, "");
-      console.log(base64Image);
       const buffer = Buffer.from(base64Image, "base64");
       const [result] = await client.labelDetection(buffer);
+      console.log(result)
       const labels = result.labelAnnotations;
 
       labels.forEach((label) => console.log(label.description));
