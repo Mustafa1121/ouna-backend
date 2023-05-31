@@ -19,9 +19,7 @@ exports.addProduct = async (req, res) => {
     ? data.imagesbase
     : data.imagesbase.split('IMAGE_BASE');
     const video = data.base64Video;
-    console.log("Mustafa ",video);
     let imagesArray = [];
-
     const newProduct = new Product({
       name: data.name,
       price: data.price,

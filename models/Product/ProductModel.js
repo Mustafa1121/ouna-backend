@@ -49,8 +49,9 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     video: {
-      type: videoSchema,
-      default: {},
+      url: {
+        type: String,
+      },
     },
     views: {
       type: Number,
