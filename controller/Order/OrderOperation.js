@@ -5,6 +5,7 @@ const Address = require("../../models/Address/AddressModel");
 const User = require("../../models/User/UserModel");
 const { sendMail } = require("../../helpers/sendEmail");
 const { getUnitPrice } = require("../../helpers/getUnitPrice");
+const { default: axios } = require("axios");
 
 // helpers
 const calculateTotalPrice = async (itemsArray) => {
@@ -32,7 +33,7 @@ exports.checkout = async (req, res) => {
     //getAddress
     const address = await Address.findById(addressId);
 
-    //get reviever
+    //get receiver
     const user = await User.findById(req.user._id);
 
     // Create a new order document
@@ -44,83 +45,144 @@ exports.checkout = async (req, res) => {
       preferredTime,
       country,
     });
-    for (var i = 0; i < cart.itemsArray.length; i++) {
-      const product = await Product.findById(cart.itemsArray[i]);
-      const owner = await User.findById(product.owner);
-      if (product.origin === "Senegal" || product.origin === "Côte d'Ivoire") {
-        await axios.post(
-          "https://api.papslogistics.com/tasks/",
-          JSON.stringify({
-            type: "PICKUP",
-            datePickup: preferredTime,
-            timePickup: "11:00",
-            vehicleType: "CAR",
-            address: address.fullAdress,
-            receiver: {
-              firstname: user.Fname,
-              lastname: user.Lname,
-              phoneNumber: user.phone,
-              email: user.email,
-              address: address.fullAddres,
-              specificationAddress: address.additionalAddressInfo,
-            },
-            parcels: [
-              {
-                identity_of_pickup_address: {
-                  address_pickup: product.location,
-                  firstName: owner.Fname,
-                  lastName: owner.Lname,
-                  phoneNumber: owner.phone,
-                },
-                description: product.description,
-                price: product.price,
-                amountCollect: product.price,
-                additionalInfo: "Pay attention",
-                isFromApi: true,
-              },
-            ],
-          })
-        );
-      }
 
+    // Iterate over the items
+    for (var i = 0; i < cart.itemsArray.length; i++) {
+      // get single product
+      const product = await Product.findById(cart.itemsArray[i]);
+      // its owner
+      const owner = await User.findById(product.owner);
+      // for senegal and cote
+      if (product.origin === "Senegal" || product.origin === "Côte d'Ivoire") {
+        // Getting token
+        try {
+          await axios.post(
+            "https://api.papslogistics.com/tasks/",
+            JSON.stringify({
+              type: "PICKUP",
+              datePickup: preferredTime,
+              timePickup: "11:00",
+              vehicleType: "CAR",
+              address: address.fullAddress,
+              receiver: {
+                firstname: user.Fname,
+                lastname: user.Lname,
+                phoneNumber: user.phone,
+                email: user.email,
+                address: address.fullAddress,
+                specificationAddress: address.additionalAddressInfo,
+              },
+              parcels: [
+                {
+                  identity_of_pickup_address: {
+                    address_pickup: product.location,
+                    firstName: owner.Fname,
+                    lastName: owner.Lname,
+                    phoneNumber: owner.phone,
+                  },
+                  description: product.description,
+                  price: product.price,
+                  amountCollect: product.price,
+                  additionalInfo: "Pay attention",
+                  isFromApi: true,
+                },
+              ],
+            })
+          );
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({
+            message: "Server error",
+          });
+        }
+      } else if (product.origin === "Egypt") {
+        const requestBody = {
+          WarehouseName: product.location, // Replace with the actual pickup location
+          PickupDueDate: preferredTime, // Replace with the preferred pickup date and time
+          Package_Serial: product._id, // Replace with the unique package identifier
+          Reference: product._id, // Replace with the reference key
+          Description: product.description, // Replace with the package description
+          Service_Type: "", // Replace with the service type lookup value
+          Service: "", // Replace with the service lookup value
+          Service_Category: "Service category", // Replace with the service category lookup value
+          Payment_Type: "Cash on Delivery", // Replace with the payment type lookup value (optional)
+          COD_Value: product.price, // Replace with the COD value of the package
+          Pieces: [
+            {
+              PieceName: "Piece name",
+              PieceWeight: 1.5, // Replace with the weight of the piece
+              PieceValue: 100, // Replace with the value of the piece
+            },
+          ],
+          Special_Notes: "Special notes", // Replace with any special notes for the package (optional)
+          Customer_Name: user.Fname, // Replace with the package receiver's name
+          Mobile_No: user.phone, // Replace with the package receiver's phone number
+        };
+
+        // Getting the token
+        const responseToken = await axios.post(
+          "http://41.33.122.61:8888/MylerzIntegrationStaging/token",
+          {
+            username: "OUNAAPP",
+            password: "L!4RM2|OL]7r1a",
+          }
+        );
+
+        const token = responseToken.data.access_token;
+
+        try {
+          const response = await axios.post(
+            "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
+            requestBody,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({
+            message: "Server error",
+          });
+        }
+      }
       // send email for the customer
-      // await sendMail({
-      //   email: req.user.email,
-      //   subject: "Your order is on its way!",
-      //   message: `Dear ${req.user.Fname},\n\nYour order with reference number ${cartId} is on its way. You can expect to receive it within the next few days. \n\nThank you for shopping with us!\n\nBest regards`,
-      // });
+      await sendMail({
+        email: req.user.email,
+        subject: "Your order is on its way!",
+        message: `Dear ${req.user.Fname},\n\nYour order with reference number ${cartId} is on its way. You can expect to receive it within the next few days. \n\nThank you for shopping with us!\n\nBest regards`,
+      });
 
       // // send email for the owner
-      // const productOwner = await User.findById(cart.itemsArray[0].owner);
-      // console.log(productOwner)
-      // await sendMail({
-      //   email: productOwner.email,
-      //   subject: "Your product has been sold!",
-      //   message: `Your product (${cart.itemsArray[0].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
-      // });
-
-      // Remove the products from the Products collection
-      for (let i = 0; i < cart.itemsArray.length; i++) {
-        const product = cart.itemsArray[i];
-        await Product.findByIdAndDelete(product);
-      }
-
-      // Save the order document to the database
-      await order.save();
-
-      // Clear the cart
-      cart.itemsArray = [];
-      await cart.save();
-
-      // Send the order document as the response
-      res.status(201).json({
-        message: "Order created successfully",
-        order,
+      await sendMail({
+        email: owner.email,
+        subject: "Your product has been sold!",
+        message: `Your product (${cart.itemsArray[i].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
       });
     }
+
+    // Remove the products from the Products collection
+    for (let i = 0; i < cart.itemsArray.length; i++) {
+      const product = cart.itemsArray[i];
+      await Product.findByIdAndDelete(product);
+    }
+
+    // Save the order document to the database
+    await order.save();
+
+    // Clear the cart
+    cart.itemsArray = [];
+    await cart.save();
+
+    // Send the order document as the response
+    res.status(201).json({
+      message: "Order created successfully",
+      order,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server error",
     });
   }
