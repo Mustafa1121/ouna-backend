@@ -6,6 +6,7 @@ const User = require("../../models/User/UserModel");
 const { sendMail } = require("../../helpers/sendEmail");
 const { getUnitPrice } = require("../../helpers/getUnitPrice");
 const { default: axios } = require("axios");
+const AddressModel = require("../../models/Address/AddressModel");
 
 // helpers
 const calculateTotalPrice = async (itemsArray) => {
@@ -33,9 +34,14 @@ exports.checkout = async (req, res) => {
     //getAddress
     const address = await Address.findById(addressId);
 
+    console.log(address);
+
     //get receiver
     const user = await User.findById(req.user._id);
 
+    console.log(user);
+
+    console.log(preferredTime);
     // Create a new order document
     const order = new Order({
       totalPrice,
@@ -46,56 +52,238 @@ exports.checkout = async (req, res) => {
       country,
     });
 
+    const dateObject = new Date(preferredTime);
+    const timestampMilliseconds = dateObject.getTime();
+
     // Iterate over the items
     for (var i = 0; i < cart.itemsArray.length; i++) {
       // get single product
       const product = await Product.findById(cart.itemsArray[i]);
       // its owner
       const owner = await User.findById(product.owner);
-      // for senegal and cote
-      if (product.origin === "Senegal" || product.origin === "Côte d'Ivoire") {
-        // Getting token
-        try {
-          await axios.post(
-            "https://api.papslogistics.com/tasks/",
-            JSON.stringify({
-              type: "PICKUP",
-              datePickup: preferredTime,
-              timePickup: "11:00",
-              vehicleType: "CAR",
-              address: address.fullAddress,
-              receiver: {
-                firstname: user.Fname,
-                lastname: user.Lname,
-                phoneNumber: user.phone,
-                email: user.email,
-                address: address.fullAddress,
-                specificationAddress: address.additionalAddressInfo,
+
+      console.log(timestampMilliseconds);
+
+      // aramex
+      const responseBody = {
+        Shipments: [
+          {
+            Reference1: "",
+            Reference2: "",
+            Reference3: "",
+            Shipper: {
+              Reference1: "",
+              Reference2: "",
+              AccountNumber: "20016",
+              PartyAddress: {
+                Line1: "Test From Jordan",
+                Line2: "",
+                Line3: "",
+                City: "Amman",
+                StateOrProvinceCode: "",
+                PostCode: "00000",
+                CountryCode: "JO",
+                Longitude: 0.0,
+                Latitude: 0.0,
+                BuildingNumber: null,
+                BuildingName: null,
+                Floor: null,
+                Apartment: null,
+                POBox: null,
+                Description: null,
               },
-              parcels: [
+              Contact: {
+                Department: "Cosmetic",
+                PersonName: "Main Warehous",
+                Title: "Main Title",
+                CompanyName: "Store",
+                PhoneNumber1: "+96227272240",
+                PhoneNumber1Ext: "",
+                PhoneNumber2: "",
+                PhoneNumber2Ext: "",
+                FaxNumber: "",
+                CellPhone: "+96227272240",
+                EmailAddress: "xyz@jordan.com",
+                Type: "",
+              },
+            },
+            Consignee: {
+              Reference1: "",
+              Reference2: "",
+              AccountNumber: "",
+              PartyAddress: {
+                Line1: "Test to Egypt",
+                Line2: "",
+                Line3: "",
+                City: address.city,
+                StateOrProvinceCode: "",
+                PostCode: "00000",
+                CountryCode: "LB",
+                Longitude: 0.0,
+                Latitude: 0.0,
+                BuildingNumber: null,
+                BuildingName: null,
+                Floor: null,
+                Apartment: null,
+                POBox: null,
+                Description: null,
+              },
+              Contact: {
+                Department: "Cosmetic",
+                PersonName: user.Fname,
+                Title: "Title Consignee",
+                CompanyName: "Store",
+                PhoneNumber1: user.phone,
+                PhoneNumber1Ext: "",
+                PhoneNumber2: "",
+                PhoneNumber2Ext: "",
+                FaxNumber: "",
+                CellPhone: "+201175451475",
+                EmailAddress: user.email,
+                Type: "",
+              },
+            },
+            ThirdParty: {
+              Reference1: "",
+              Reference2: "",
+              AccountNumber: "",
+              PartyAddress: {
+                Line1: "",
+                Line2: "",
+                Line3: "",
+                City: "",
+                StateOrProvinceCode: "",
+                PostCode: "",
+                CountryCode: "",
+                Longitude: 0.0,
+                Latitude: 0.0,
+                BuildingNumber: null,
+                BuildingName: null,
+                Floor: null,
+                Apartment: null,
+                POBox: null,
+                Description: null,
+              },
+              Contact: {
+                Department: "",
+                PersonName: "",
+                Title: "",
+                CompanyName: "",
+                PhoneNumber1: "",
+                PhoneNumber1Ext: "",
+                PhoneNumber2: "",
+                PhoneNumber2Ext: "",
+                FaxNumber: "",
+                CellPhone: "",
+                EmailAddress: "",
+                Type: "",
+              },
+            },
+            ShippingDateTime: "/Date(1692621629000)/",
+            DueDate: "/Date(" + timestampMilliseconds + ")/",
+            Comments: "Comment",
+            PickupLocation: product.location,
+            OperationsInstructions: "Operation Instructions",
+            AccountingInstrcutions: "Accounting Instrucation",
+            Details: {
+              Dimensions: {
+                Length: 10.0,
+                Width: 10.0,
+                Height: 10.0,
+                Unit: "cm",
+              },
+              ActualWeight: {
+                Unit: "KG",
+                Value: 7.0,
+              },
+              ChargeableWeight: null,
+              DescriptionOfGoods: "BOX",
+              GoodsOriginCountry: "JO",
+              NumberOfPieces: 1,
+              ProductGroup: "EXP",
+              ProductType: "PPX",
+              PaymentType: "P",
+              PaymentOptions: "",
+              CustomsValueAmount: {
+                CurrencyCode: "USD",
+                Value: 10.0,
+              },
+              CashOnDeliveryAmount: {
+                CurrencyCode: "USD",
+                Value: product.price,
+              },
+              InsuranceAmount: null,
+              CashAdditionalAmount: null,
+              CashAdditionalAmountDescription: "",
+              CollectAmount: null,
+              Services: "CODS",
+              Items: [
                 {
-                  identity_of_pickup_address: {
-                    address_pickup: product.location,
-                    firstName: owner.Fname,
-                    lastName: owner.Lname,
-                    phoneNumber: owner.phone,
+                  PackageType: "BOX",
+                  Quantity: 1,
+                  Weight: {
+                    Unit: "KG",
+                    Value: 7.0,
                   },
-                  description: product.description,
-                  price: product.price,
-                  amountCollect: product.price,
-                  additionalInfo: "Pay attention",
-                  isFromApi: true,
+                  Comments: "Items",
+                  Reference: "Item Refernce",
+                  PiecesDimensions: null,
+                  CommodityCode: null,
+                  GoodsDescription: null,
+                  CountryOfOrigin: null,
+                  CustomsValue: null,
+                  ContainerNumber: null,
                 },
               ],
-            })
-          );
-        } catch (error) {
-          console.error(error);
-          return res.status(500).json({
-            message: "Server error",
-          });
-        }
-      } else if (product.origin === "Egypt") {
+              DeliveryInstructions: null,
+              AdditionalProperties: null,
+              ContainsDangerousGoods: false,
+            },
+
+            ForeignHAWB: "",
+            "TransportType ": 0,
+            PickupGUID: "",
+            Number: null,
+            ScheduledDelivery: null,
+          },
+        ],
+        LabelInfo: {
+          ReportID: 9729,
+          ReportType: "URL",
+        },
+        ClientInfo: {
+          UserName: "testingapi@aramex.com",
+          Password: "R123456789$r",
+          Version: "1.0",
+          AccountNumber: "20016",
+          AccountPin: "331421",
+          AccountEntity: "AMM",
+          AccountCountryCode: "JO",
+          Source: 24,
+          PreferredLanguageCode: null,
+        },
+        Transaction: {
+          Reference1: "Transaction 1",
+          Reference2: "Transaction 2",
+          Reference3: "Transaction 3",
+          Reference4: "Transaction 4",
+          Reference5: "Transaction 5",
+        },
+      };
+
+      try {
+        const response = await axios.post(
+          "https://ws.sbx.aramex.net/ShippingAPI.V2/Shipping/Service_1_0.svc/json/CreateShipments",
+          responseBody
+        );
+      } catch (error) {
+        console.error(error.response.data.message);
+        return res.status(500).json({
+          message: "Server error",
+        });
+      }
+      // Getting token
+      if (product.origin === "Egypt") {
         const requestBody = {
           WarehouseName: product.location, // Replace with the actual pickup location
           PickupDueDate: preferredTime, // Replace with the preferred pickup date and time
@@ -146,40 +334,41 @@ exports.checkout = async (req, res) => {
             message: "Server error",
           });
         }
+
+        // send email for the customer
+        await sendMail({
+          email: req.user.email,
+          subject: "Your order is on its way!",
+          message: `Dear ${req.user.Fname},\n\nYour order with reference number ${cartId} is on its way. You can expect to receive it within the next few days. \n\nThank you for shopping with us!\n\nBest regards`,
+        });
+
+        // // send email for the owner
+        await sendMail({
+          email: owner.email,
+          subject: "Your product has been sold!",
+          message: `Your product (${cart.itemsArray[i].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
+        });
       }
-      // send email for the customer
-      await sendMail({
-        email: req.user.email,
-        subject: "Your order is on its way!",
-        message: `Dear ${req.user.Fname},\n\nYour order with reference number ${cartId} is on its way. You can expect to receive it within the next few days. \n\nThank you for shopping with us!\n\nBest regards`,
-      });
 
-      // // send email for the owner
-      await sendMail({
-        email: owner.email,
-        subject: "Your product has been sold!",
-        message: `Your product (${cart.itemsArray[i].name}) has been sold and is being shipped to ${req.user.Fname} ${req.user.Lname}.`,
+      // Remove the products from the Products collection
+      // for (let i = 0; i < cart.itemsArray.length; i++) {
+      //   const product = cart.itemsArray[i];
+      //   await Product.findByIdAndDelete(product);
+      // }
+
+      // Save the order document to the database
+      await order.save();
+
+      // Clear the cart
+      cart.itemsArray = [];
+      await cart.save();
+
+      // Send the order document as the response
+      res.status(201).json({
+        message: "Order created successfully",
+        order,
       });
     }
-
-    // Remove the products from the Products collection
-    for (let i = 0; i < cart.itemsArray.length; i++) {
-      const product = cart.itemsArray[i];
-      await Product.findByIdAndDelete(product);
-    }
-
-    // Save the order document to the database
-    await order.save();
-
-    // Clear the cart
-    cart.itemsArray = [];
-    await cart.save();
-
-    // Send the order document as the response
-    res.status(201).json({
-      message: "Order created successfully",
-      order,
-    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
