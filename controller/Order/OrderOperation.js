@@ -62,7 +62,6 @@ exports.checkout = async (req, res) => {
       // its owner
       const owner = await User.findById(product.owner);
 
-      console.log(timestampMilliseconds);
 
       // aramex
       const responseBody = {
@@ -284,50 +283,67 @@ exports.checkout = async (req, res) => {
       }
       // Getting token
       if (product.origin === "Egypt") {
-        const requestBody = {
-          WarehouseName: product.location, // Replace with the actual pickup location
-          PickupDueDate: preferredTime, // Replace with the preferred pickup date and time
-          Package_Serial: product._id, // Replace with the unique package identifier
-          Reference: product._id, // Replace with the reference key
-          Description: product.description, // Replace with the package description
-          Service_Type: "", // Replace with the service type lookup value
-          Service: "", // Replace with the service lookup value
-          Service_Category: "Service category", // Replace with the service category lookup value
-          Payment_Type: "Cash on Delivery", // Replace with the payment type lookup value (optional)
-          COD_Value: product.price, // Replace with the COD value of the package
-          Pieces: [
+        const requestBody = 
+          [
             {
-              PieceName: "Piece name",
-              PieceWeight: 1.5, // Replace with the weight of the piece
-              PieceValue: 100, // Replace with the value of the piece
-            },
-          ],
-          Special_Notes: "Special notes", // Replace with any special notes for the package (optional)
-          Customer_Name: user.Fname, // Replace with the package receiver's name
-          Mobile_No: user.phone, // Replace with the package receiver's phone number
-        };
-
-        // Getting the token
+              "Package_Serial": 0,
+              "Description": product.name,
+              "Total_Weight": 8,
+              "Service_Type": "Door to door",
+              "Service": "Next Day",
+              "Service_Category": "Forward delivery",
+              "Payment_Type": "Cash-on-Delivery",
+              "COD_Value": 0,
+              "Customer_Name": owner.Fname +" "+owner.Lname,
+              "Customer_Email": owner.email,
+              "CustomerAddressZipCode": "",
+              "Customer_ReferenceNumber": owner.phone,
+              "Mobile_No": owner.phone,
+              "Building_No": "",
+              "Street": "",
+              "Floor_No": "",
+              "Apartment_No": "",
+              "City": product.address.city,
+              "Neighborhood": "",
+              "District": "",
+              "Address_Category": "",
+              "Reference": "string",
+              "Reference2": "string",
+              "Country":product.origin ,
+              "CustVal": "",
+              "Currency": "$",
+              "GeoLocation": "",
+              "Pieces": [
+                {
+                  "pieceNo": 0,
+                  "Weight": 8,
+                  "ItemCategory": product.category.name,
+                  "SpecialNotes": product.description,
+                  "Dimensions": "",
+                  "PieceReferenceNumber": ""
+                }
+              ],
+              "PickupDueDate": "string",
+              "ServiceDate": "string",
+              "WarehouseName": "string",
+              "ValueOfGoods": 0,
+              "AllowToOpenPackage": true,
+              "Mobile_No2": "string",
+              "CompanyName": "string"
+            }
+          ]
+        
+        try {
+           // Getting the token
         const responseToken = await axios.post(
-          "http://41.33.122.61:8888/MylerzIntegrationStaging/token",
+          "https://mylerzintegrationtest.mylerz.com/api/Orders/AddOrders?api_key=order",
+          requestBody,
           {
-            username: "OUNAAPP",
-            password: "L!4RM2|OL]7r1a",
+            headers: {
+              Authorization: "Bearer v5eF6svlZl9ucYj42iZhT-I8onb8qckgva8YBfNd1w4D2FbLFPUBIVO_0x1r7qI7-jtnDkypRRZxzDsyzdoLmb3PGxtxz9ZqjX6auPYbaNk-EQ320PpCFI8dCXZT6U8Odf59Ab6I5nKTRT4bFIjkzON8d3MPVjy6YWcWA3gZYIIpWkmb2UjkRS4IQU009iC29iV7kqso7rNYsoRgWsQ7RHsECHaUKLrU_mwHGAW_VVS2M0WyrL1DD8DRPcCiXIWSOhoYqV8PtOiBR2Yzw3N8d5r9yLDwxrQc81IHBGmFwVQhAD6XXM20LNLP50NDAmLOnXRRUxhCZssBAWtPrQCRR8Beyyma3vORvLV6WhHvQqUBUMCNpfahxCLNxa-0PwihdgX_Jv7ykNNTte5HLyWaVi8JE38raEjZfVexLS6JjZfRCRYbyNObYXFla5hJaE3ghR0_YbqCm4uTLk8DDtq71BZ2xuec7Igu9kNEF3oow88lCzQ5tNBj1IaINheN88KzmkZLqvRQlH5Jw-0-KFzndIDkIvpC31XACWiIRqU5nP0"
+            }
           }
         );
-
-        const token = responseToken.data.access_token;
-
-        try {
-          const response = await axios.post(
-            "http://41.33.122.61:8888/MylerzIntegrationStaging/api/Orders/AddOrders",
-            requestBody,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
         } catch (error) {
           console.error(error);
           return res.status(500).json({
