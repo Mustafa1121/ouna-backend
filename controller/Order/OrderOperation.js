@@ -34,14 +34,9 @@ exports.checkout = async (req, res) => {
     //getAddress
     const address = await Address.findById(addressId);
 
-    console.log(address);
-
     //get receiver
     const user = await User.findById(req.user._id);
 
-    console.log(user);
-
-    console.log(preferredTime);
     // Create a new order document
     const order = new Order({
       totalPrice,
@@ -61,8 +56,7 @@ exports.checkout = async (req, res) => {
       const product = await Product.findById(cart.itemsArray[i]);
       // its owner
       const owner = await User.findById(product.owner);
-
-
+      console.log(product.location);
       // aramex
       const responseBody = {
         Shipments: [
@@ -276,74 +270,74 @@ exports.checkout = async (req, res) => {
           responseBody
         );
       } catch (error) {
-        console.error(error.response.data.message);
+        console.log(error);
         return res.status(500).json({
           message: "Server error",
         });
       }
       // Getting token
       if (product.origin === "Egypt") {
-        const requestBody = 
-          [
-            {
-              "Package_Serial": 0,
-              "Description": product.name,
-              "Total_Weight": 8,
-              "Service_Type": "Door to door",
-              "Service": "Next Day",
-              "Service_Category": "Forward delivery",
-              "Payment_Type": "Cash-on-Delivery",
-              "COD_Value": 0,
-              "Customer_Name": owner.Fname +" "+owner.Lname,
-              "Customer_Email": owner.email,
-              "CustomerAddressZipCode": "",
-              "Customer_ReferenceNumber": owner.phone,
-              "Mobile_No": owner.phone,
-              "Building_No": "",
-              "Street": "",
-              "Floor_No": "",
-              "Apartment_No": "",
-              "City": product.address.city,
-              "Neighborhood": "",
-              "District": "",
-              "Address_Category": "",
-              "Reference": "string",
-              "Reference2": "string",
-              "Country":product.origin ,
-              "CustVal": "",
-              "Currency": "$",
-              "GeoLocation": "",
-              "Pieces": [
-                {
-                  "pieceNo": 0,
-                  "Weight": 8,
-                  "ItemCategory": product.category.name,
-                  "SpecialNotes": product.description,
-                  "Dimensions": "",
-                  "PieceReferenceNumber": ""
-                }
-              ],
-              "PickupDueDate": "string",
-              "ServiceDate": "string",
-              "WarehouseName": "string",
-              "ValueOfGoods": 0,
-              "AllowToOpenPackage": true,
-              "Mobile_No2": "string",
-              "CompanyName": "string"
-            }
-          ]
-        
-        try {
-           // Getting the token
-        const responseToken = await axios.post(
-          "https://mylerzintegrationtest.mylerz.com/api/Orders/AddOrders?api_key=order",
-          requestBody,
+        const requestBody = [
           {
-            headers: {
-              Authorization: "Bearer v5eF6svlZl9ucYj42iZhT-I8onb8qckgva8YBfNd1w4D2FbLFPUBIVO_0x1r7qI7-jtnDkypRRZxzDsyzdoLmb3PGxtxz9ZqjX6auPYbaNk-EQ320PpCFI8dCXZT6U8Odf59Ab6I5nKTRT4bFIjkzON8d3MPVjy6YWcWA3gZYIIpWkmb2UjkRS4IQU009iC29iV7kqso7rNYsoRgWsQ7RHsECHaUKLrU_mwHGAW_VVS2M0WyrL1DD8DRPcCiXIWSOhoYqV8PtOiBR2Yzw3N8d5r9yLDwxrQc81IHBGmFwVQhAD6XXM20LNLP50NDAmLOnXRRUxhCZssBAWtPrQCRR8Beyyma3vORvLV6WhHvQqUBUMCNpfahxCLNxa-0PwihdgX_Jv7ykNNTte5HLyWaVi8JE38raEjZfVexLS6JjZfRCRYbyNObYXFla5hJaE3ghR0_YbqCm4uTLk8DDtq71BZ2xuec7Igu9kNEF3oow88lCzQ5tNBj1IaINheN88KzmkZLqvRQlH5Jw-0-KFzndIDkIvpC31XACWiIRqU5nP0"
+            Package_Serial: 0,
+            Description: product.name,
+            Total_Weight: 8,
+            Service_Type: "Door to door",
+            Service: "Next Day",
+            Service_Category: "Forward delivery",
+            Payment_Type: "Cash-on-Delivery",
+            COD_Value: 0,
+            Customer_Name: owner.Fname + " " + owner.Lname,
+            Customer_Email: owner.email,
+            CustomerAddressZipCode: "",
+            Customer_ReferenceNumber: owner.phone,
+            Mobile_No: owner.phone,
+            Building_No: "",
+            Street: "",
+            Floor_No: "",
+            Apartment_No: "",
+            City: product.address.city,
+            Neighborhood: "",
+            District: "",
+            Address_Category: "",
+            Reference: "string",
+            Reference2: "string",
+            Country: product.origin,
+            CustVal: "",
+            Currency: "$",
+            GeoLocation: "",
+            Pieces: [
+              {
+                pieceNo: 0,
+                Weight: 8,
+                ItemCategory: product.category.name,
+                SpecialNotes: product.description,
+                Dimensions: "",
+                PieceReferenceNumber: "",
+              },
+            ],
+            PickupDueDate: "string",
+            ServiceDate: "string",
+            WarehouseName: "string",
+            ValueOfGoods: 0,
+            AllowToOpenPackage: true,
+            Mobile_No2: "string",
+            CompanyName: "string",
+          },
+        ];
+
+        try {
+          // Getting the token
+          const responseToken = await axios.post(
+            "https://mylerzintegrationtest.mylerz.com/api/Orders/AddOrders?api_key=order",
+            requestBody,
+            {
+              headers: {
+                Authorization:
+                  "Bearer v5eF6svlZl9ucYj42iZhT-I8onb8qckgva8YBfNd1w4D2FbLFPUBIVO_0x1r7qI7-jtnDkypRRZxzDsyzdoLmb3PGxtxz9ZqjX6auPYbaNk-EQ320PpCFI8dCXZT6U8Odf59Ab6I5nKTRT4bFIjkzON8d3MPVjy6YWcWA3gZYIIpWkmb2UjkRS4IQU009iC29iV7kqso7rNYsoRgWsQ7RHsECHaUKLrU_mwHGAW_VVS2M0WyrL1DD8DRPcCiXIWSOhoYqV8PtOiBR2Yzw3N8d5r9yLDwxrQc81IHBGmFwVQhAD6XXM20LNLP50NDAmLOnXRRUxhCZssBAWtPrQCRR8Beyyma3vORvLV6WhHvQqUBUMCNpfahxCLNxa-0PwihdgX_Jv7ykNNTte5HLyWaVi8JE38raEjZfVexLS6JjZfRCRYbyNObYXFla5hJaE3ghR0_YbqCm4uTLk8DDtq71BZ2xuec7Igu9kNEF3oow88lCzQ5tNBj1IaINheN88KzmkZLqvRQlH5Jw-0-KFzndIDkIvpC31XACWiIRqU5nP0",
+              },
             }
-          }
-        );
+          );
         } catch (error) {
           console.error(error);
           return res.status(500).json({
@@ -367,10 +361,10 @@ exports.checkout = async (req, res) => {
       }
 
       // Remove the products from the Products collection
-      // for (let i = 0; i < cart.itemsArray.length; i++) {
-      //   const product = cart.itemsArray[i];
-      //   await Product.findByIdAndDelete(product);
-      // }
+      for (let i = 0; i < cart.itemsArray.length; i++) {
+        const product = cart.itemsArray[i];
+        await Product.findByIdAndDelete(product);
+      }
 
       // Save the order document to the database
       await order.save();

@@ -16,8 +16,8 @@ exports.addProduct = async (req, res) => {
   try {
     const data = req.body;
     let images = Array.isArray(data.imagesbase)
-    ? data.imagesbase
-    : data.imagesbase.split('IMAGE_BASE');
+      ? data.imagesbase
+      : data.imagesbase.split("IMAGE_BASE");
     const video = data.base64Video;
     let imagesArray = [];
     const newProduct = new Product({
@@ -33,6 +33,8 @@ exports.addProduct = async (req, res) => {
       unitPrice: getUnitPrice(data.origin),
     });
 
+    console.log("hello");
+
     if (
       await require("../../helpers/googleVision").performLabelDetection(images)
     ) {
@@ -45,6 +47,7 @@ exports.addProduct = async (req, res) => {
           imagesArray.push({ url: url.secure_url });
           newProduct.images = imagesArray;
         }
+        console.log("finished");
       }
       if (video) {
         const video1 = await cloudinary.uploader.upload(video, {
@@ -53,6 +56,7 @@ exports.addProduct = async (req, res) => {
         });
         newProduct.video = { url: video1.secure_url };
       }
+      console.log("helloo");
       await newProduct.save();
       return res
         .status(200)
