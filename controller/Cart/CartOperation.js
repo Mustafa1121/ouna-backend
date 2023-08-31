@@ -14,6 +14,9 @@ exports.addToCart = async (req, res) => {
     if (item.reserved) {
       return res.status(400).json({ message: "Item is already reserved" });
     }
+    if(item.owner.equals(req.user._id)){
+      return res.status(400).json({ message: "You can't purchase your own product" });
+    }
     // Mark the product as reserved
     item.reserved = true;
     await item.save();

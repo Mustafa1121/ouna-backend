@@ -56,7 +56,6 @@ exports.checkout = async (req, res) => {
       const product = await Product.findById(cart.itemsArray[i]);
       // its owner
       const owner = await User.findById(product.owner);
-      console.log(product.location);
       // aramex
       const responseBody = {
         Shipments: [
@@ -277,6 +276,7 @@ exports.checkout = async (req, res) => {
       }
       // Getting token
       if (product.origin === "Egypt") {
+        console.log(product);
         const requestBody = [
           {
             Package_Serial: 0,
@@ -296,7 +296,7 @@ exports.checkout = async (req, res) => {
             Street: "",
             Floor_No: "",
             Apartment_No: "",
-            City: product.address.city,
+            City: address.city,
             Neighborhood: "",
             District: "",
             Address_Category: "",
