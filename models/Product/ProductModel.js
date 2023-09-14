@@ -68,6 +68,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isEmoudVerified: {
+      type: Boolean,
+      default: false
+    },
     rating: {
       type: Number,
       required: true,
