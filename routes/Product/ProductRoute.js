@@ -9,7 +9,6 @@ const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 router.get("/all/:origin?", controller.getAllProducts);
 // GET (SINGLE PRODUCT)
 router.get("/:id", controller.getSingleProduct);
-router.patch("emoud/:id", controller.verifiedEmoud);
 
 // POST (ADD PRODUCT)
 router.post("/addProduct", isVerified, isAuth, controller.addProduct);

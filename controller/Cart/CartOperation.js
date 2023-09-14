@@ -3,6 +3,7 @@ const Product = require("../../models/Product/ProductModel");
 
 // Add an item to the cart
 exports.addToCart = async (req, res) => {
+  const {isVerified} = req.body
   try {
     const cart = await Cart.findOne({ cartOwner: req.user._id });
     const item = await Product.findById(req.params.itemId);
@@ -19,6 +20,7 @@ exports.addToCart = async (req, res) => {
     }
     // Mark the product as reserved
     item.reserved = true;
+    item.isEmoudVerified = isVerified;
     await item.save();
 
     if (!cart) {
@@ -55,6 +57,7 @@ exports.deleteFromCart = async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
     item.reserved = false;
+    item.isEmoudVerified = false;
     await item.save();
     cart.itemsArray.pull(req.params.itemId);
     await cart.save();
