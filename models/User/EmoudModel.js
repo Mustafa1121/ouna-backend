@@ -7,6 +7,10 @@ const emoudSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  isEmoud: {
+    type: Boolean,
+    default: true
+  },
   password: {
     type: String,
     required: true,

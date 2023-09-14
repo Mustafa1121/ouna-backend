@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
     countryCode: {
       type: String,
       default: "+961",
