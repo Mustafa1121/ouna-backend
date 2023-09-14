@@ -14,6 +14,7 @@ app.use(require("cors")());
 
 // Routes
 app.use("/api/user/auth", require("./routes/User/UserAuthRoute"));
+app.use("/api/user/auth/emoud", require("./routes/User/EmoudAuthRoute"));
 app.use("/api/user/address", require("./routes/Address/AddressRoute"));
 app.use("/api/products", require("./routes/Product/ProductRoute"));
 app.use("/api/order", require("./routes/Order/OrderRoute"));
