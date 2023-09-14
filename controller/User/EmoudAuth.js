@@ -17,12 +17,6 @@ exports.login = async (req, res) => {
         });
       }
   
-      // check if the user's email is verified
-      if (!user.isEmailVerified) {
-        return res.status(401).json({
-          message: "Email is not verified",
-        });
-      }
   
       // if everything is oke Log the user in
       createSendToken(user, 200, res);
