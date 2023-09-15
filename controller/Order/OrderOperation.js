@@ -420,7 +420,14 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.getAllOrders = async (req,res) => {
   try {
-    const orders = await Order.find({})
+    const orders = await Order.find({}).populate({
+      path:"cart",
+      model: "Cart",
+      populate: {
+        path: "cartOwner",
+        model: "User"
+      }
+    })
     if(!orders) {
       return res.status(404).json({
         message: "No Orders found"
