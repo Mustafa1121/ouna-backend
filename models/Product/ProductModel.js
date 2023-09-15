@@ -72,6 +72,10 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    isOfficialEmoudVerified: {
+      type: Boolean,
+      default: false
+    },
     rating: {
       type: Number,
       required: true,
