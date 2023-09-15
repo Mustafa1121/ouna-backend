@@ -5,6 +5,9 @@ const controller = require("../../controller/Order/OrderOperation");
 const isAuth = require("../../middleware/User/isAuthMiddleware");
 const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 
+// Get All orders
+router.get("/all",controller.getAllOrders)
+
 // Create a new order
 router.post("/", isAuth, isVerified, controller.checkout);
 

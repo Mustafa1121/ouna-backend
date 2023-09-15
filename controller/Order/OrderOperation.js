@@ -417,3 +417,20 @@ exports.updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+exports.getAllOrders = async (req,res) => {
+  try {
+    const orders = await Order.find({})
+    if(!orders) {
+      return res.status(404).json({
+        message: "No Orders found"
+      })
+    }
+    res.status(200).json(orders)
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+}

@@ -4,6 +4,9 @@ const controller = require("../../controller/User/UserAuth");
 const isAuth = require("../../middleware/User/isAuthMiddleware");
 const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 
+// Get Users
+router.get("/all",controller.getAllUsers)
+
 // POST (LOGIN)
 router.post("/login", controller.login);
 // POST (REGISTER)

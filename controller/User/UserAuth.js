@@ -244,3 +244,19 @@ exports.resetPassword = async (req, res) => {
     console.log(error);
   }
 };
+
+
+exports.getAllUsers = async (req,res) => {
+  try{
+    const users = await User.find({})
+    if(!users) {
+      return res.status(404).json({
+        message: "No Users found"
+      })
+    }
+    res.status(200).json(users)
+  }catch(error) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+}
