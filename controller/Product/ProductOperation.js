@@ -222,9 +222,11 @@ exports.getEmoudProduct = async (req,res) => {
       populate: {
         path: "itemsArray",
         model: "Product",
-        match: {isEmoudVerified:true,origin:"LB"}
+        match: {isEmoudVerified:true, origin:"LB"}
       }
     })
+
+    
 
     // create array
     const emoudVerifiedProducts = [];
