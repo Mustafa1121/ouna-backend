@@ -89,7 +89,7 @@ exports.getAllProducts = async (req, res) => {
     const { origin } = req.params;
     let products;
     if (origin) {
-      products = await Product.find({ origin: origin }).populate("category");
+      products = await Product.find({ origin: origin, isAvailable:true }).populate("category");
     } else {
       products = await Product.find({ origin: "Lebanon" }).populate("category");
     }
@@ -237,7 +237,7 @@ exports.getEmoudProduct = async (req,res) => {
 
     console.log(emoudVerifiedProducts)
     res.status(200).json({message: emoudVerifiedProducts})
-    
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });
