@@ -3,7 +3,7 @@ const User = require("../../models/User/UserModel");
 const cloudinary = require("cloudinary").v2;
 const classifyImages = require("../../helpers/googleVision");
 const CartModel = require("../../models/Cart/CartModel");
-
+const Order = require("../../models/Order/OrderModel")
 // helpers
 const getUnitPrice = require("../../helpers/getUnitPrice").getUnitPrice;
 
@@ -34,7 +34,6 @@ exports.addProduct = async (req, res) => {
       unitPrice: getUnitPrice(data.origin),
     });
 
-    console.log("hello");
 
     if (
       await require("../../helpers/googleVision").performLabelDetection(images)
@@ -57,7 +56,6 @@ exports.addProduct = async (req, res) => {
         });
         newProduct.video = { url: video1.secure_url };
       }
-      console.log("helloo");
       await newProduct.save();
       return res
         .status(200)
@@ -212,3 +210,36 @@ exports.NotEmoudVerified = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+exports.getEmoudProduct = async (req,res) => {
+  try {
+    // from the order  => cart => itemArray Product
+    const orders = await Order.find({})
+    .populate({
+      path: "cart",
+      model: "Cart",
+      populate: {
+        path: "itemsArray",
+        model: "Product",
+        match: {isEmoudVerified:true}
+      }
+    })
+
+    // create array
+    const emoudVerifiedProducts = [];
+
+    for (const order of orders) {
+      if (order.cart && order.cart.itemsArray && order.cart.itemsArray.length > 0) {
+        emoudVerifiedProducts.push(...order.cart.itemsArray);
+      }
+    }
+
+    console.log(emoudVerifiedProducts)
+    res.status(200).json({message: emoudVerifiedProducts})
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}

@@ -363,7 +363,8 @@ exports.checkout = async (req, res) => {
       // Remove the products from the Products collection
       for (let i = 0; i < cart.itemsArray.length; i++) {
         const product = cart.itemsArray[i];
-        await Product.findByIdAndDelete(product);
+        product.isAvailable = false;
+        await product.save()
       }
 
       // Save the order document to the database
