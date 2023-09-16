@@ -215,30 +215,9 @@ exports.NotEmoudVerified = async (req, res) => {
 exports.getEmoudProduct = async (req,res) => {
   try {
     // from the order  => cart => itemArray Product
-    const orders = await Order.find({})
-    .populate({
-      path: "cart",
-      model: "Cart",
-      populate: {
-        path: "itemsArray",
-        model: "Product",
-        match: {isEmoudVerified:true, origin:"LB"}
-      }
-    })
+    const products = await Product.find({isAvailable:false,isEmoudVerified:true})
 
-    
-
-    // create array
-    const emoudVerifiedProducts = [];
-
-    for (const order of orders) {
-      if (order.cart && order.cart.itemsArray && order.cart.itemsArray.length > 0) {
-        emoudVerifiedProducts.push(...order.cart.itemsArray);
-      }
-    }
-
-    console.log(emoudVerifiedProducts)
-    res.status(200).json({message: emoudVerifiedProducts})
+    res.status(200).json({products})
 
   } catch (error) {
     console.error(error);
