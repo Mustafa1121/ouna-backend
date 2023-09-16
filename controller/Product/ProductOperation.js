@@ -146,7 +146,7 @@ exports.deleteOldProducts = async (req, res) => {
   }
 };
 
-exports.officialEmoudVerified = async (req,res) => {
+exports.officialEmoudVerified = async (req, res) => {
   const { id } = req.params;
   try {
     const item = await Product.findById(id);
@@ -156,30 +156,31 @@ exports.officialEmoudVerified = async (req,res) => {
         .json({ message: "Item not found! Please try again later" });
     } else {
       item.isOfficialEmoudVerified = true;
-      await item.save()
+      await item.save();
       return res.status(200).json({
-        message: "This product is officially verified"
-      })
+        message: "This product is officially verified",
+      });
     }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-exports.deleteProduct = async (req,res) => {
+exports.deleteProduct = async (req, res) => {
   const { id } = req.params;
   try {
     const item = await Product.findByIdAndRemove(id);
+    console.log(item);
     if (!item) {
       return res
         .status(404)
         .json({ message: "Item not found! Please try again later" });
-    } 
+    }
+    return res.status(200).json({ messgae: "item deleted" });
   } catch (error) {
     console.log(error);
   }
-}
-
+};
 
 exports.NotEmoudVerified = async (req, res) => {
   const { id } = req.params;
@@ -191,7 +192,9 @@ exports.NotEmoudVerified = async (req, res) => {
         .json({ message: "Item not found! Please try again later" });
     }
 
-    const cart = await CartModel.findOne({ itemsArray: { $in: [id] } }).populate("cartOwner");
+    const cart = await CartModel.findOne({
+      itemsArray: { $in: [id] },
+    }).populate("cartOwner");
 
     if (!cart) {
       return res
@@ -199,11 +202,9 @@ exports.NotEmoudVerified = async (req, res) => {
         .json({ message: "Cart not found for this product" });
     }
 
-
     // send email to the product owner
     // send email to the receiver
     // send email to the third party to collect the fees
-
 
     return res.status(200).json({ cartOwner: cart.cartOwner });
   } catch (error) {

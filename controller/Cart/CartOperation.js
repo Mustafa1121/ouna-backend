@@ -3,7 +3,7 @@ const Product = require("../../models/Product/ProductModel");
 
 // Add an item to the cart
 exports.addToCart = async (req, res) => {
-  const {isVerified} = req.body
+  const { isVerified } = req.body;
   try {
     const cart = await Cart.findOne({ cartOwner: req.user._id });
     const item = await Product.findById(req.params.itemId);
@@ -15,9 +15,9 @@ exports.addToCart = async (req, res) => {
     if (item.reserved) {
       return res.status(400).json({ message: "Item is already reserved" });
     }
-    if(item.owner.equals(req.user._id)){
-      return res.status(400).json({ message: "You can't purchase your own product" });
-    }
+    // if(item.owner.equals(req.user._id)){
+    //   return res.status(400).json({ message: "You can't purchase your own product" });
+    // }
     // Mark the product as reserved
     item.reserved = true;
     item.isEmoudVerified = isVerified;
