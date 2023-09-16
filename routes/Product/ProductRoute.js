@@ -7,6 +7,7 @@ const isVerified = require("../../middleware/User/isVerifiedMiddleware");
 
 // GET (ALL PRODUCTS)
 router.get("/all/:origin?", controller.getAllProducts);
+router.get("/all/emoud",controller.getEmoudProduct)
 // GET (SINGLE PRODUCT)
 router.get("/:id", controller.getSingleProduct);
 router.delete("/:id",controller.deleteProduct);
