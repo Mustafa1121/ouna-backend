@@ -45,6 +45,7 @@ exports.checkout = async (req, res) => {
       address: addressId,
       preferredTime,
       country,
+      cart: cartId
     });
 
     const dateObject = new Date(preferredTime);
