@@ -222,7 +222,7 @@ exports.getEmoudProduct = async (req,res) => {
       populate: {
         path: "itemsArray",
         model: "Product",
-        match: {isEmoudVerified:true}
+        match: {isEmoudVerified:true,origin:"LB"}
       }
     })
 
